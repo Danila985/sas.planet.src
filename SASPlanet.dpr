@@ -3,6 +3,7 @@ program SASPlanet;
 
 uses
   SASPlanet.modules in 'Src\SASPlanet.modules.pas',
+  System.Win.HighDpi, // DPI: sets Per-Monitor DPI awareness before VCL init
   Windows,
   Forms,
   SysUtils,
@@ -1671,6 +1672,7 @@ begin
     {$ENDIF}
 
     VApp.Initialize;
+
     VApp.MainFormOnTaskBar := True;
     VApp.Title := GState.ApplicationCaption;
 

@@ -78,7 +78,8 @@ type
     constructor Create(
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionSet: IProjectionSetChangeable;
-      const APerfCounterList: IInternalPerformanceCounterList
+      const APerfCounterList: IInternalPerformanceCounterList;
+      const ADpiScale: Double
     );
     destructor Destroy; override;
   end;
@@ -95,7 +96,8 @@ uses
 constructor TViewPortState.Create(
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionSet: IProjectionSetChangeable;
-  const APerfCounterList: IInternalPerformanceCounterList
+  const APerfCounterList: IInternalPerformanceCounterList;
+  const ADpiScale: Double
 );
 var
   VProjectionSet: IProjectionSet;
@@ -116,7 +118,7 @@ begin
     ACoordConverterFactory.CreateConverter(
       VLocalRect,
       VProjection,
-      1.0,
+      ADpiScale,
       DoublePoint(VCenterPoint.X - VLocalCenter.X, VCenterPoint.Y - VLocalCenter.Y)
     );
 

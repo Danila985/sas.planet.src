@@ -1404,7 +1404,8 @@ begin
     TViewPortState.Create(
       GState.LocalConverterFactory,
       FActiveProjectionSet,
-      GState.DebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('ViewState')
+      GState.DebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('ViewState'),
+      Screen.PixelsPerInch / 96
     );
   LoadPosition;
 
@@ -1828,7 +1829,7 @@ begin
 
   TBEditPath.Floating := True;
   TBEditPath.MoveOnScreen(True);
-  TBEditPath.FloatingPosition := Point(Left + map.Left + 30, Top + map.Top + 70);
+  TBEditPath.FloatingPosition := Point(Left + map.Left + MulDiv(30, Screen.PixelsPerInch, 96), Top + map.Top + MulDiv(70, Screen.PixelsPerInch, 96));
 
   TBEditSelectPolylineRadius.OnUpClick := Self.TBEditSelectPolylineRadiusOnUpClick;
   TBEditSelectPolylineRadius.OnDownClick := Self.TBEditSelectPolylineRadiusOnDownClick;
@@ -1854,7 +1855,7 @@ begin
       TBXDock1,
       NSensors,
       MenusImageList,
-      40
+      MulDiv(40, Screen.PixelsPerInch, 96)
     );
   FSensorViewList := VSensorViewGenerator.CreateSensorViewList(FSensorList);
   FPanelPositionSaveLoad.Load(Self);
@@ -1991,10 +1992,10 @@ begin
   Result := nil;
   if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
     if Assigned(VPathOnMapEdit.Path) and IsValidLonLatLine(VPathOnMapEdit.Path.Geometry) then begin
-      VRect.Left := ALocalPoint.X - 12;
-      VRect.Top := ALocalPoint.Y - 12;
-      VRect.Right := ALocalPoint.X + 12;
-      VRect.Bottom := ALocalPoint.Y + 12;
+      VRect.Left := ALocalPoint.X - MulDiv(12, Screen.PixelsPerInch, 96);
+      VRect.Top := ALocalPoint.Y - MulDiv(12, Screen.PixelsPerInch, 96);
+      VRect.Right := ALocalPoint.X + MulDiv(12, Screen.PixelsPerInch, 96);
+      VRect.Bottom := ALocalPoint.Y + MulDiv(12, Screen.PixelsPerInch, 96);
 
       VProjection := AVisualConverter.Projection;
       VMapRect := AVisualConverter.LocalRectFloat2MapRectFloat(VRect);
@@ -6241,12 +6242,17 @@ var
   VMapType: IMapType;
   VList18: TMapTypeIconsList;
   VList24: TMapTypeIconsList;
+  VIconSize18: Integer;
+  VIconSize24: Integer;
   i: Integer;
 begin
-  VList18 := TMapTypeIconsList.Create(18, 18);
+  VIconSize18 := MulDiv(18, Screen.PixelsPerInch, 96);
+  VIconSize24 := MulDiv(24, Screen.PixelsPerInch, 96);
+
+  VList18 := TMapTypeIconsList.Create(VIconSize18, VIconSize18);
   FMapTypeIcons18List := VList18;
 
-  VList24 := TMapTypeIconsList.Create(24, 24);
+  VList24 := TMapTypeIconsList.Create(VIconSize24, VIconSize24);
   FMapTypeIcons24List := VList24;
 
   for i := 0 to GState.MapType.FullMapsSet.Count - 1 do begin

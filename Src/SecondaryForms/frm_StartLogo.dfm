@@ -10,7 +10,7 @@ object frmStartLogo: TfrmStartLogo
   OldCreateOrder = False
   PopupMode = pmAuto
   Position = poScreenCenter
-  Scaled = False
+  Scaled = True
   OnClose = FormClose
   OnShow = FormShow
   PixelsPerInch = 96

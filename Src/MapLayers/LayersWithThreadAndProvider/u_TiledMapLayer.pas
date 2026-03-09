@@ -67,6 +67,9 @@ type
 
     FLastPaintConverter: ILocalCoordConverter;
 
+    FLastPaintWasFast: Boolean;
+    FQualityRedrawCounter: Integer;
+
     procedure OnPaintLayer(
       Sender: TObject;
       Buffer: TBitmap32
@@ -161,6 +164,9 @@ begin
   FViewChangeFlag := TSimpleFlagWithInterlock.Create;
   FTileMatrixChangeFlag := TSimpleFlagWithInterlock.Create;
 
+  FLastPaintWasFast := False;
+  FQualityRedrawCounter := 0;
+
   LinksList.Add(
     TListenerTimeCheck.Create(Self.OnTimer, 25),
     AGuiSyncronizedTimerNotifier
@@ -253,6 +259,13 @@ begin
   if FZoomingFlag.CheckFlagAndReset then begin
     FTileMatrixChangeFlag.SetFlag;
   end;
+
+  if not FMainFormState.IsMapMoving then begin
+    if FLastPaintWasFast then
+      FQualityRedrawCounter := 12; // ~300ms delay (12 * 25ms timer ticks)
+  end else begin
+    FQualityRedrawCounter := 0; // cancel pending quality redraw
+  end;
 end;
 
 procedure TTiledMapLayer.OnViewChange;
@@ -339,6 +352,17 @@ begin
       end;
     end;
   end;
+  if FQualityRedrawCounter > 0 then begin
+    if FMainFormState.IsMapMoving then begin
+      FQualityRedrawCounter := 0;
+    end else begin
+      Dec(FQualityRedrawCounter);
+      if FQualityRedrawCounter = 0 then begin
+        VIsChanged := True;
+      end;
+    end;
+  end;
+
   if VIsChanged then begin
     {$IFDEF ENABLE_TILED_MAP_LAYER_LOGGING}
     GLog.Write(Self, '%s: Updating by OnTimer', [FDebugName]);
@@ -470,7 +494,14 @@ begin
               {$ENDIF}
             end else begin
               if VResampler = nil then begin
-                VResampler := TNearestResampler.Create;
+                if FMainFormState.IsMapMoving then begin
+                  VResampler := TNearestResampler.Create;
+                  FLastPaintWasFast := True;
+                end else begin
+                  VResampler := TKernelResampler.Create;
+                  TKernelResampler(VResampler).Kernel := TLanczosKernel.Create;
+                  FLastPaintWasFast := False;
+                end;
               end;
               Assert(VResampler <> nil);
               VCounterContext := FOneTilePaintResizeCounter.StartOperation;
